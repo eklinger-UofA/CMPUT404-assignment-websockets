@@ -123,8 +123,13 @@ function getPosition(e) {
 
 function addEntity(entity, data) {
     world[entity] = data;
+    //TODO rm this next line, handle it in websocket code
     drawNextFrame(); // (but should we?)
     //XXX: Send a XHTML Request that updates the entity you just modified!
+    // Send the new entity over the web socket
+    //socket.send(JSON.stringify({"entity":entity, "data": data}));
+    socket.send(JSON.stringify({"entity":entity, "data": data, "counter": counter}));
+    //socket.send(JSON.stringify({"data": data}));
 }
 var counter = 0;
 function addEntityWithoutName(data) {
@@ -254,14 +259,54 @@ function wsSetup() {
     socket = new WebSocket(url);
     socket.onopen = function() {
         //XXX: TODO What are you going to do here?
+        // Should probably ask for the world here?
+        // get the world, replace our world with that info
+        // call renderFrame to print everything that the world and server has
+        // world = something
+        // either manually call update or something, or call drawframe
+        // TODO check that i did this right and its i will need to complete the assignment
+        var xhr = new XMLHttpRequest();
+ 
+        xhr.onreadystatechange = function(){
+            if (xhr.readyState == 4){
+                if (xhr.status == 200){
+                    var responseData = JSON.parse(xhr.response);
+                    world = responseData["world"];
+                    counter = responseData["counter"];
+                    drawNextFrame();
+                    //drawFrame();
+                }
+                else{
+                    alert("There was an error " + xhr.status);
+                }
+            }
+        };
+        xhr.open('GET', '../world');
+        //xhr.setRequestHeader("Content-Type", "applocation/json");
+        xhr.send();
+        //xhr.setRequestHeader("Content-Type", "applocation/json");
+        //xhr.send(JSON.stringify(objects));
+
+        // TODO need to find a way to get the current counter
+        // This will prevent overriding recently drawn items from other browers
     };
     socket.onerror = function(msg) {
         debug("WebSocket Error:" + msg.data);
     };
     socket.onmessage = function(msg) {  
+        // We are receiving a new message from the server over the websocket
+        // TODO this needs to get two things. One is the new data, and the other is the current value of the counter to use. This will then be ++'s and we can continue from there with drawing
         try {
-            debug("WebSocket Recv:" + msg.data);
+            //debug("WebSocket Recv:" + msg.data);
             //XXX: TODO What are you going to do here?            
+            // TODO: validate this is the right stuff
+            var data = JSON.parse(msg.data)
+            counter = data["counter"]
+            //addEntityWithoutName(entity)
+            //addEntity(data["entity"], data["data"])
+            world[data["entity"]] = data["data"]
+            drawNextFrame();
+            //drawFrame(); // TODO rm this so update can take over
         } catch (e) {
             alert("socket on message: " + e);
         }
