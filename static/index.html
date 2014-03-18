@@ -127,8 +127,8 @@ function addEntity(entity, data) {
     drawNextFrame(); // (but should we?)
     //XXX: Send a XHTML Request that updates the entity you just modified!
     // Send the new entity over the web socket
-    socket.send(JSON.stringify({"entity":entity, "data": data}));
-    //socket.send(JSON.stringify({"entity":entity, "data": data, "counter": counter}));
+    //socket.send(JSON.stringify({"entity":entity, "data": data}));
+    socket.send(JSON.stringify({"entity":entity, "data": data, "counter": counter}));
     //obj = {};
     //obj[entity] = data;
     //socket.send(JSON.stringify({entity: data}));
@@ -276,7 +276,7 @@ function wsSetup() {
                 if (xhr.status == 200){
                     var responseData = JSON.parse(xhr.response);
                     world = responseData["world"];
-                    //counter = responseData["counter"];
+                    counter = responseData["counter"];
                     drawNextFrame();
                     //drawFrame();
                 }
@@ -316,6 +316,7 @@ function wsSetup() {
             //    }
            // }
             world[data["entity"]] = data["data"];
+            counter = data["counter"]
             //world[data.keys()[0]] = data.values()[0]
             drawNextFrame();
             //drawFrame(); // TODO rm this so update can take over

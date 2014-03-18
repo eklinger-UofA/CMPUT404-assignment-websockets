@@ -131,8 +131,7 @@ def read_ws(ws,client):
                 if "entity" in packet.keys():
                     print packet.keys()
                     myWorld.set(packet["entity"], packet["data"])
-                    #if "counter" in
-                    #myWorld.setCounter(packet["counter"])
+                    myWorld.setCounter(packet["counter"])
                     send_all_json(packet)
                     # end old implementation
                 else:
@@ -191,9 +190,9 @@ def world():
     # Took this from my assignment 4
     resp = Response(status=200)
     worldData = myWorld.world()
-    #counter = myWorld.getNextCounter()
-    #jsonData = json.dumps({"world": worldData, "counter": counter})
-    jsonData = json.dumps({"world": worldData})
+    counter = myWorld.getNextCounter()
+    jsonData = json.dumps({"world": worldData, "counter": counter})
+    #jsonData = json.dumps({"world": worldData})
     resp.set_data(jsonData)
     return resp
 
