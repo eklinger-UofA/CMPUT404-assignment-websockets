@@ -44,19 +44,46 @@ debug("Test");
 
 world = {};
 
-//XXX: TODO Make this prettier!
 function drawCircle(context,entity) {
     with(context) {
-        beginPath();                
+        beginPath();              
         lineWidth = 3;
         var x = entity["x"];
         var y = entity["y"];
         //moveTo(x,y);
-        fillStyle = entity["colour"];
-        strokeStyle = fillStyle;
-        arc(x, y, (entity["radius"])?entity["radius"]:50, 0, 2.0 * Math.PI, false);  
-        stroke();                                
+        //fillStyle = entity["colour"];
+        //strokeStyle = fillStyle;
+        //arc(x, y, (entity["radius"])?entity["radius"]:50, 0, 2.0 * Math.PI, false);  
+        //stroke();                                
+        //drawNyanCat(context, x, y);
+        if (entity["colour"] == 'red') {
+            drawNyanCat(context, x, y);
+        }
+        else {
+            drawGradients(context, x, y);
+        }
     }
+}
+
+function drawGradients(context, x, y) {
+        var grad = context.createLinearGradient(0, y-25, 0, y+25);
+            grad.addColorStop(0, 'red');
+            grad.addColorStop(1 / 6, 'orange');
+            grad.addColorStop(2 / 6, 'yellow');
+            grad.addColorStop(3 / 6, 'green')
+            grad.addColorStop(4 / 6, 'aqua');
+            grad.addColorStop(5 / 6, 'blue');
+            grad.addColorStop(1, 'purple');
+            context.fillStyle = grad;
+            context.fillRect(x-10, y-25, 20, 50);
+}
+
+function drawNyanCat(context, x, y) {
+    var img = new Image();
+    img.onload = function(){
+        context.drawImage(img, x-50, y-50, 100, 100);
+    }
+    img.src = 'nyancatsvg.png';
 }
 
 function prepEntity(entity) {
@@ -230,7 +257,6 @@ mouse = (function() {
 })();
 
 // Add the application specific mouse listeners!
-//XXX: TODO Make these prettier!
 mouse.mousedowners.push(function(x,y,clicked,e) {
     addEntityWithoutName({'x':x,'y':y,'colour':'blue'});
 });
