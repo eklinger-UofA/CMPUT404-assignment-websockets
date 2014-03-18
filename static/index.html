@@ -127,8 +127,12 @@ function addEntity(entity, data) {
     drawNextFrame(); // (but should we?)
     //XXX: Send a XHTML Request that updates the entity you just modified!
     // Send the new entity over the web socket
-    //socket.send(JSON.stringify({"entity":entity, "data": data}));
-    socket.send(JSON.stringify({"entity":entity, "data": data, "counter": counter}));
+    socket.send(JSON.stringify({"entity":entity, "data": data}));
+    //socket.send(JSON.stringify({"entity":entity, "data": data, "counter": counter}));
+    //obj = {};
+    //obj[entity] = data;
+    //socket.send(JSON.stringify({entity: data}));
+    //socket.send(JSON.stringify(obj));
     //socket.send(JSON.stringify({"data": data}));
 }
 var counter = 0;
@@ -272,7 +276,7 @@ function wsSetup() {
                 if (xhr.status == 200){
                     var responseData = JSON.parse(xhr.response);
                     world = responseData["world"];
-                    counter = responseData["counter"];
+                    //counter = responseData["counter"];
                     drawNextFrame();
                     //drawFrame();
                 }
@@ -300,11 +304,19 @@ function wsSetup() {
             //debug("WebSocket Recv:" + msg.data);
             //XXX: TODO What are you going to do here?            
             // TODO: validate this is the right stuff
-            var data = JSON.parse(msg.data)
-            counter = data["counter"]
+            var data = JSON.parse(msg.data);
+            //debug("Data:" + data);
+            //counter = data["counter"]
             //addEntityWithoutName(entity)
             //addEntity(data["entity"], data["data"])
-            world[data["entity"]] = data["data"]
+            //for (var key in data) {
+            //    debug("data[key]: " + data[key][0])
+            //    if (key != None) {
+            //        world[key] = data[key];
+            //    }
+           // }
+            world[data["entity"]] = data["data"];
+            //world[data.keys()[0]] = data.values()[0]
             drawNextFrame();
             //drawFrame(); // TODO rm this so update can take over
         } catch (e) {

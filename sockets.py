@@ -37,7 +37,7 @@ class World:
         self.clear()
         # we've got listeners now!
         self.listeners = list()
-        self.counter = 0
+        self.counter = 1
 
     def add_set_listener(self, listener):
         self.listeners.append( listener )
@@ -117,7 +117,6 @@ def read_ws(ws,client):
             print "WS RECV: %s" % entityData
             if (entityData is not None):
                 # if the entity is not None, then send info to everyone
-                print entityData
                 #myWorld.set(entityData["entity"], entityData["data"])
                 #if entity in myWorld.world().keys():
                 #    for key in data.keys():
@@ -125,20 +124,27 @@ def read_ws(ws,client):
                 #else: # This is a new entry
                 #    myWorld.set(entity, data)
 
+                # Old implementation
                 packet = json.loads(entityData)
-                print "packet: %s" % packet
-                print "packet.__class__: %s" % packet.__class__
-                print packet.keys()
-                print packet["entity"]
-                myWorld.set(packet["entity"], packet["data"])
-                myWorld.setCounter(packet["counter"])
-                send_all_json(packet)
+                #print "packet: %s" % packet
+                #print "packet.__class__: %s" % packet.__class__
+                if "entity" in packet.keys():
+                    print packet.keys()
+                    myWorld.set(packet["entity"], packet["data"])
+                    #if "counter" in
+                    #myWorld.setCounter(packet["counter"])
+                    send_all_json(packet)
+                    # end old implementation
+                else:
+                    key = packet.keys()[0]
+                    data = packet[key]
+                    myWorld.set(key, data)
+                    send_all_json(packet)
             else:
                 break
     except:
-        raise
-    #    """ done """
-    #    pass
+        """ done """
+        pass
 
 @sockets.route('/subscribe')
 def subscribe_socket(ws):
@@ -155,7 +161,7 @@ def subscribe_socket(ws):
             #block here
             # We should just get the whole world and send it here
             entity = client.get()
-            print entity
+            #print entity
             ws.send(entity)
     except Exception as e: #WebSocketError as e:
         print "WS Error: %s" % e
@@ -177,19 +183,6 @@ def flask_post_json():
 @app.route("/entity/<entity>", methods=['POST','PUT'])
 def update(entity):
     '''update the entities via this interface'''
-    # TODO the websocket version of this, if it's even applicable
-    #data = flask_post_json()
-    #if entity in myWorld.world().keys():
-    #    for key in data.keys():
-    #        myWorld.update(entity, key, data[key])
-    #else: # This is a new entry
-    #    myWorld.set(entity, data)
-    """ Thinking i don't need the following anymore
-    resp = Response(status=200)
-    jsonData = json.dumps(myWorld.get(entity))
-    resp.set_data(jsonData)
-    return resp
-    """
     return None
 
 @app.route("/world", methods=['POST','GET'])
@@ -198,8 +191,9 @@ def world():
     # Took this from my assignment 4
     resp = Response(status=200)
     worldData = myWorld.world()
-    counter = myWorld.getNextCounter()
-    jsonData = json.dumps({"world": worldData, "counter": counter})
+    #counter = myWorld.getNextCounter()
+    #jsonData = json.dumps({"world": worldData, "counter": counter})
+    jsonData = json.dumps({"world": worldData})
     resp.set_data(jsonData)
     return resp
 
