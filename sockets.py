@@ -109,31 +109,17 @@ def hello():
 
 def read_ws(ws,client):
     '''A greenlet function that reads from the websocket and updates the world'''
-    # XXX: TODO IMPLEMENT ME
-    # From broadcast.py
     try:
         while True:
             entityData = ws.receive()
             print "WS RECV: %s" % entityData
             if (entityData is not None):
-                # if the entity is not None, then send info to everyone
-                #myWorld.set(entityData["entity"], entityData["data"])
-                #if entity in myWorld.world().keys():
-                #    for key in data.keys():
-                #        myWorld.update(entity, key, data[key])
-                #else: # This is a new entry
-                #    myWorld.set(entity, data)
-
-                # Old implementation
                 packet = json.loads(entityData)
-                #print "packet: %s" % packet
-                #print "packet.__class__: %s" % packet.__class__
                 if "entity" in packet.keys():
                     print packet.keys()
                     myWorld.set(packet["entity"], packet["data"])
                     myWorld.setCounter(packet["counter"])
                     send_all_json(packet)
-                    # end old implementation
                 else:
                     key = packet.keys()[0]
                     data = packet[key]
@@ -149,8 +135,6 @@ def read_ws(ws,client):
 def subscribe_socket(ws):
     '''Fufill the websocket URL of /subscribe, every update notify the
        websocket and read updates from the websocket '''
-    # XXX: TODO IMPLEMENT ME
-    # From broadcast.py
     client = Client()
     clients.append(client)
     g = gevent.spawn(read_ws, ws, client)
@@ -158,9 +142,7 @@ def subscribe_socket(ws):
     try:
         while True:
             #block here
-            # We should just get the whole world and send it here
             entity = client.get()
-            #print entity
             ws.send(entity)
     except Exception as e: #WebSocketError as e:
         print "WS Error: %s" % e
@@ -192,7 +174,6 @@ def world():
     worldData = myWorld.world()
     counter = myWorld.getNextCounter()
     jsonData = json.dumps({"world": worldData, "counter": counter})
-    #jsonData = json.dumps({"world": worldData})
     resp.set_data(jsonData)
     return resp
 
